@@ -100,10 +100,10 @@ export function GameMenu({ onStartGame }: GameMenuProps) {
             </div>
           </div>
 
-          {error && <div className="p-3 bg-red-900 border border-red-700 rounded text-sm text-red-200">{error}</div>}
+          {error && <div className="p-3 bg-gray-800 border border-gray-600 rounded text-sm text-gray-200">{error}</div>}
 
           {loading && progressMessage && (
-            <div className="p-3 bg-blue-900 border border-blue-700 rounded text-sm text-blue-200">
+            <div className="p-3 bg-gray-700 border border-gray-500 rounded text-sm text-gray-200">
               {progressMessage}
             </div>
           )}

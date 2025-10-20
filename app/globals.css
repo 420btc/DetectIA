@@ -4,39 +4,39 @@
 @custom-variant dark (&:is(.dark *));
 
 :root {
-  --background: oklch(0.1743 0.0227 283.7998);
-  --foreground: oklch(0.9185 0.0257 285.8834);
-  --card: oklch(0.2284 0.0384 282.9324);
-  --card-foreground: oklch(0.9185 0.0257 285.8834);
-  --popover: oklch(0.2284 0.0384 282.9324);
-  --popover-foreground: oklch(0.9185 0.0257 285.8834);
-  --primary: oklch(0.7162 0.1597 290.3962);
-  --primary-foreground: oklch(0.1743 0.0227 283.7998);
-  --secondary: oklch(0.3139 0.0736 283.4591);
-  --secondary-foreground: oklch(0.8367 0.0849 285.9111);
-  --muted: oklch(0.271 0.0621 281.4377);
-  --muted-foreground: oklch(0.7166 0.0462 285.1741);
-  --accent: oklch(0.9221 0.0373 262.141);
-  --accent-foreground: oklch(0.3015 0.0572 282.4176);
-  --destructive: oklch(0.6861 0.2061 14.9941);
-  --destructive-foreground: oklch(1.0 0 0);
-  --border: oklch(0.3261 0.0597 282.5832);
-  --input: oklch(0.3261 0.0597 282.5832);
-  --ring: oklch(0.7162 0.1597 290.3962);
-  --chart-1: oklch(0.7162 0.1597 290.3962);
-  --chart-2: oklch(0.6382 0.1047 274.9117);
-  --chart-3: oklch(0.7482 0.1235 244.7492);
-  --chart-4: oklch(0.7124 0.0977 186.6761);
-  --chart-5: oklch(0.7546 0.1831 346.8124);
+  --background: #000000;
+  --foreground: #ffffff;
+  --card: #1a1a1a;
+  --card-foreground: #ffffff;
+  --popover: #1a1a1a;
+  --popover-foreground: #ffffff;
+  --primary: #ffffff;
+  --primary-foreground: #000000;
+  --secondary: #333333;
+  --secondary-foreground: #ffffff;
+  --muted: #262626;
+  --muted-foreground: #cccccc;
+  --accent: #ffffff;
+  --accent-foreground: #000000;
+  --destructive: #666666;
+  --destructive-foreground: #ffffff;
+  --border: #404040;
+  --input: #404040;
+  --ring: #ffffff;
+  --chart-1: #ffffff;
+  --chart-2: #cccccc;
+  --chart-3: #999999;
+  --chart-4: #666666;
+  --chart-5: #333333;
   --radius: 0.5rem;
-  --sidebar: oklch(0.2284 0.0384 282.9324);
-  --sidebar-foreground: oklch(0.9185 0.0257 285.8834);
-  --sidebar-primary: oklch(0.7162 0.1597 290.3962);
-  --sidebar-primary-foreground: oklch(0.1743 0.0227 283.7998);
-  --sidebar-accent: oklch(0.9221 0.0373 262.141);
-  --sidebar-accent-foreground: oklch(0.3015 0.0572 282.4176);
-  --sidebar-border: oklch(0.3261 0.0597 282.5832);
-  --sidebar-ring: oklch(0.7162 0.1597 290.3962);
+  --sidebar: #1a1a1a;
+  --sidebar-foreground: #ffffff;
+  --sidebar-primary: #ffffff;
+  --sidebar-primary-foreground: #000000;
+  --sidebar-accent: #ffffff;
+  --sidebar-accent-foreground: #000000;
+  --sidebar-border: #404040;
+  --sidebar-ring: #ffffff;
   --shadow-x: 0px;
   --shadow-y: 1px;
   --shadow-blur: 2px;
@@ -119,5 +119,108 @@
   }
   body {
     @apply bg-background text-foreground;
+  }
+}
+
+/* Forzar colores blanco y negro en toda la aplicación */
+@layer utilities {
+  /* Colores slate a escala de grises */
+  .bg-slate-900 { @apply !bg-black; }
+  .bg-slate-800 { @apply !bg-gray-900; }
+  .bg-slate-700 { @apply !bg-gray-800; }
+  .bg-slate-600 { @apply !bg-gray-700; }
+  .bg-slate-500 { @apply !bg-gray-600; }
+  .bg-slate-400 { @apply !bg-gray-500; }
+  .bg-slate-300 { @apply !bg-gray-400; }
+  .bg-slate-200 { @apply !bg-gray-300; }
+  .bg-slate-100 { @apply !bg-gray-200; }
+  .bg-slate-50 { @apply !bg-gray-100; }
+  
+  /* Colores azules a escala de grises */
+  .bg-blue-900 { @apply !bg-gray-900; }
+  .bg-blue-800 { @apply !bg-gray-800; }
+  .bg-blue-700 { @apply !bg-gray-700; }
+  .bg-blue-600 { @apply !bg-gray-600; }
+  .bg-blue-500 { @apply !bg-gray-500; }
+  .bg-blue-400 { @apply !bg-gray-400; }
+  .bg-blue-300 { @apply !bg-gray-300; }
+  .bg-blue-200 { @apply !bg-gray-200; }
+  .bg-blue-100 { @apply !bg-gray-100; }
+  .bg-blue-50 { @apply !bg-gray-50; }
+  
+  /* Colores sky/cyan a escala de grises */
+  .bg-sky-900 { @apply !bg-gray-900; }
+  .bg-sky-800 { @apply !bg-gray-800; }
+  .bg-sky-700 { @apply !bg-gray-700; }
+  .bg-sky-600 { @apply !bg-gray-600; }
+  .bg-sky-500 { @apply !bg-gray-500; }
+  .bg-sky-400 { @apply !bg-gray-400; }
+  .bg-sky-300 { @apply !bg-gray-300; }
+  .bg-sky-200 { @apply !bg-gray-200; }
+  .bg-sky-100 { @apply !bg-gray-100; }
+  .bg-sky-50 { @apply !bg-gray-50; }
+  
+  .bg-cyan-900 { @apply !bg-gray-900; }
+  .bg-cyan-800 { @apply !bg-gray-800; }
+  .bg-cyan-700 { @apply !bg-gray-700; }
+  .bg-cyan-600 { @apply !bg-gray-600; }
+  .bg-cyan-500 { @apply !bg-gray-500; }
+  .bg-cyan-400 { @apply !bg-gray-400; }
+  .bg-cyan-300 { @apply !bg-gray-300; }
+  .bg-cyan-200 { @apply !bg-gray-200; }
+  .bg-cyan-100 { @apply !bg-gray-100; }
+  .bg-cyan-50 { @apply !bg-gray-50; }
+  
+  /* Textos slate a escala de grises */
+  .text-slate-900 { @apply !text-black; }
+  .text-slate-800 { @apply !text-gray-900; }
+  .text-slate-700 { @apply !text-gray-800; }
+  .text-slate-600 { @apply !text-gray-700; }
+  .text-slate-500 { @apply !text-gray-600; }
+  .text-slate-400 { @apply !text-gray-500; }
+  .text-slate-300 { @apply !text-gray-400; }
+  .text-slate-200 { @apply !text-gray-300; }
+  .text-slate-100 { @apply !text-gray-200; }
+  .text-slate-50 { @apply !text-gray-100; }
+  
+  /* Textos azules a escala de grises */
+  .text-blue-900 { @apply !text-gray-900; }
+  .text-blue-800 { @apply !text-gray-800; }
+  .text-blue-700 { @apply !text-gray-700; }
+  .text-blue-600 { @apply !text-gray-600; }
+  .text-blue-500 { @apply !text-gray-500; }
+  .text-blue-400 { @apply !text-gray-400; }
+  .text-blue-300 { @apply !text-gray-300; }
+  .text-blue-200 { @apply !text-gray-200; }
+  .text-blue-100 { @apply !text-gray-100; }
+  .text-blue-50 { @apply !text-gray-50; }
+  
+  /* Bordes slate a escala de grises */
+  .border-slate-900 { @apply !border-black; }
+  .border-slate-800 { @apply !border-gray-900; }
+  .border-slate-700 { @apply !border-gray-800; }
+  .border-slate-600 { @apply !border-gray-700; }
+  .border-slate-500 { @apply !border-gray-600; }
+  .border-slate-400 { @apply !border-gray-500; }
+  .border-slate-300 { @apply !border-gray-400; }
+  .border-slate-200 { @apply !border-gray-300; }
+  .border-slate-100 { @apply !border-gray-200; }
+  .border-slate-50 { @apply !border-gray-100; }
+  
+  /* Bordes azules a escala de grises */
+  .border-blue-900 { @apply !border-gray-900; }
+  .border-blue-800 { @apply !border-gray-800; }
+  .border-blue-700 { @apply !border-gray-700; }
+  .border-blue-600 { @apply !border-gray-600; }
+  .border-blue-500 { @apply !border-gray-500; }
+  .border-blue-400 { @apply !border-gray-400; }
+  .border-blue-300 { @apply !border-gray-300; }
+  .border-blue-200 { @apply !border-gray-200; }
+  .border-blue-100 { @apply !border-gray-100; }
+  .border-blue-50 { @apply !border-gray-50; }
+  
+  /* Forzar todos los colores a escala de grises */
+  * {
+    filter: grayscale(100%) !important;
   }
 }

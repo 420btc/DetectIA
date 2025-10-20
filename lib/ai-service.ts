@@ -44,10 +44,10 @@ ARQUETIPO DE VILLANO: ${culpritProfile.archetype}
 ${culpritProfile.superPrompt}
 
 TÁCTICAS DE ENGAÑO A USAR:
-${culpritProfile.deceptionTactics.map((t) => `- ${t}`).join("\n")}
+${culpritProfile.deceptionTactics.map((tactic: string) => `- ${tactic}`).join("\n")}
 
 EXPLOTA ESTAS DEBILIDADES EN TU DEFENSA:
-${culpritProfile.weaknesses.map((w) => `- ${w}`).join("\n")}`
+${culpritProfile.weaknesses.map((weakness: string) => `- ${weakness}`).join("\n")}`
     : `ERES INOCENTE - ESTRATEGIA DE COOPERACIÓN:
 1. COARTADA VERAZ: Proporciona información de coartada consistente y detallada.
 2. SERVICIAL: Ofrece información que pueda ayudar a encontrar al verdadero culpable.
@@ -62,6 +62,10 @@ ${culpritProfile.weaknesses.map((w) => `- ${w}`).join("\n")}`
 IMPORTANTE: Responde SIEMPRE en español. Mantén tu personaje y actúa de manera natural y creíble.`
 
   const messages = [
+    {
+      role: "system" as const,
+      content: systemPrompt,
+    },
     ...conversationHistory.map((msg) => ({
       role: msg.role as "user" | "assistant",
       content: msg.content,
@@ -75,7 +79,6 @@ IMPORTANTE: Responde SIEMPRE en español. Mantén tu personaje y actúa de maner
   const response = await openai.chat.completions.create({
     model: MODEL,
     max_tokens: MAX_TOKENS,
-    system: systemPrompt,
     messages: messages,
   })
 

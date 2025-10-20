@@ -137,7 +137,7 @@ export function RiddleGame({ caseData }: RiddleGameProps) {
       ) : (
         <div className="space-y-4 mb-6">
           <div
-            className={`p-4 rounded border ${correct ? "bg-green-900 border-green-700" : "bg-red-900 border-red-700"}`}
+            className={`p-4 rounded border ${correct ? "bg-gray-800 border-gray-600" : "bg-gray-700 border-gray-500"}`}
           >
             <p className={`font-bold ${correct ? "text-green-200" : "text-red-200"}`}>
               {correct ? "¡Correcto!" : "Incorrecto"}
