@@ -4,7 +4,6 @@ import { getOpenAIClient } from "./openai-client"
 import { getRandomVillainProfile, type VillainProfile } from "./villain-profiles"
 
 const MODEL = "gpt-4-turbo"
-const MAX_TOKENS = 4096
 
 interface Suspect {
   name: string
@@ -34,10 +33,18 @@ interface CaseData {
   timeline: string
   location: string
   difficulty: "easy" | "medium" | "hard"
+  chapterId?: string
+}
+
+interface GenerationParams {
+  difficulty: "easy" | "medium" | "hard"
+  theme?: string
+  mastermindClue?: string
+  chapterId?: string
 }
 
 // Step 1: Generate basic case framework
-async function generateCaseFramework(difficulty: "easy" | "medium" | "hard"): Promise<any> {
+async function generateCaseFramework(params: GenerationParams): Promise<any> {
   const openai = getOpenAIClient()
 
   const difficultyGuide = {
@@ -46,9 +53,20 @@ async function generateCaseFramework(difficulty: "easy" | "medium" | "hard"): Pr
     hard: "Complex crime with multiple layers, sophisticated deception, and interconnected clues",
   }
 
-  const prompt = `Create a police case framework for a detective game. Difficulty: ${difficultyGuide[difficulty]}
+  let prompt = `Create a police case framework for a detective game. Difficulty: ${difficultyGuide[params.difficulty]}`
 
-Return JSON:
+  if (params.theme) {
+    const themePrompts: Record<string, string> = {
+      corporate: "Theme: Corporate espionage, white-collar crime, high-stakes business.",
+      passion: "Theme: Crime of passion, romantic entanglement, jealousy.",
+      organized: "Theme: Organized crime, mafia connections, underground gambling.",
+      revenge: "Theme: Long-held grudge, calculated revenge plot.",
+      conspiracy: "Theme: Political conspiracy, cover-ups, secret societies."
+    }
+    prompt += `\n${themePrompts[params.theme] || `Theme: ${params.theme}`}`
+  }
+
+  prompt += `\n\nReturn JSON:
 {
   "crimeType": "type of crime",
   "title": "catchy case title",
@@ -69,10 +87,10 @@ Return JSON:
 }
 
 // Step 2: Generate suspects with one culprit
-async function generateSuspects(caseFramework: any, difficulty: "easy" | "medium" | "hard"): Promise<Suspect[]> {
+async function generateSuspects(caseFramework: any, params: GenerationParams): Promise<Suspect[]> {
   const openai = getOpenAIClient()
 
-  const suspectCount = difficulty === "easy" ? 2 : difficulty === "medium" ? 3 : 4
+  const suspectCount = params.difficulty === "easy" ? 2 : params.difficulty === "medium" ? 3 : 4
 
   const prompt = `Generate ${suspectCount} suspects for this crime: ${caseFramework.title}
 Location: ${caseFramework.location}
@@ -110,24 +128,28 @@ Make the suspects realistic and complex. Include at least one red herring.`
 async function generateEvidence(
   caseFramework: any,
   suspects: Suspect[],
-  difficulty: "easy" | "medium" | "hard",
+  params: GenerationParams,
 ): Promise<Evidence[]> {
   const openai = getOpenAIClient()
 
-  const evidenceCount = difficulty === "easy" ? 4 : difficulty === "medium" ? 6 : 8
+  const evidenceCount = params.difficulty === "easy" ? 4 : params.difficulty === "medium" ? 6 : 8
 
   const suspectNames = suspects.map((s) => s.name).join(", ")
 
-  const prompt = `Generate ${evidenceCount} pieces of evidence for this crime: ${caseFramework.title}
+  let prompt = `Generate ${evidenceCount} pieces of evidence for this crime: ${caseFramework.title}
 Suspects: ${suspectNames}
 
 Create evidence that:
 1. Points to the culprit (suspect 0)
 2. Creates false leads for other suspects
 3. Includes physical evidence, testimonies, and digital traces
-4. Has varying levels of reliability
+4. Has varying levels of reliability`
 
-Return JSON array:
+  if (params.mastermindClue) {
+    prompt += `\n\nIMPORTANT: Include one specific piece of evidence that subtly hints at a larger conspiracy or "The Architect", related to this clue: "${params.mastermindClue}". This should be subtle.`
+  }
+
+  prompt += `\n\nReturn JSON array:
 [
   {
     "name": "evidence name",
@@ -176,20 +198,27 @@ Format as a readable timeline (not JSON).`
 }
 
 // Main function: Orchestrate case generation with multiple calls
-export async function generateCaseWithAI(difficulty: "easy" | "medium" | "hard"): Promise<CaseData> {
-  console.log("[v0] Starting case generation with difficulty:", difficulty)
+export async function generateCaseWithAI(
+  difficultyOrParams: "easy" | "medium" | "hard" | GenerationParams
+): Promise<CaseData> {
+
+  const params: GenerationParams = typeof difficultyOrParams === 'string'
+    ? { difficulty: difficultyOrParams }
+    : difficultyOrParams
+
+  console.log("[v0] Starting case generation with params:", params)
 
   // Step 1: Generate framework
   console.log("[v0] Step 1: Generating case framework...")
-  const framework = await generateCaseFramework(difficulty)
+  const framework = await generateCaseFramework(params)
 
   // Step 2: Generate suspects
   console.log("[v0] Step 2: Generating suspects...")
-  const suspects = await generateSuspects(framework, difficulty)
+  const suspects = await generateSuspects(framework, params)
 
   // Step 3: Generate evidence
   console.log("[v0] Step 3: Generating evidence...")
-  const evidence = await generateEvidence(framework, suspects, difficulty)
+  const evidence = await generateEvidence(framework, suspects, params)
 
   // Step 4: Generate timeline
   console.log("[v0] Step 4: Generating timeline...")
@@ -208,7 +237,8 @@ export async function generateCaseWithAI(difficulty: "easy" | "medium" | "hard")
     evidence,
     timeline,
     location: framework.location,
-    difficulty,
+    difficulty: params.difficulty,
+    chapterId: params.chapterId
   }
 
   console.log("[v0] Case generation complete. Culprit index:", culpritIndex, "Profile:", culpritProfile.name)
