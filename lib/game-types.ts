@@ -20,7 +20,7 @@ export interface DetectiveProfile {
   createdAt: number
 }
 
-export type DetectiveRank = 
+export type DetectiveRank =
   | 'Novato'
   | 'Detective Junior'
   | 'Detective'
@@ -41,7 +41,7 @@ export interface Chapter {
   theme: CaseTheme
 }
 
-export type CaseTheme = 
+export type CaseTheme =
   | 'corporate'     // Corporate crime, embezzlement
   | 'passion'       // Crimes of passion, relationships
   | 'organized'     // Organized crime, mafia
@@ -64,7 +64,7 @@ export interface StoryProgress {
   endingType: EndingType | null
 }
 
-export type EndingType = 
+export type EndingType =
   | 'perfect'       // All chapters A-rank, mastermind caught
   | 'good'          // Mastermind caught, good performance
   | 'neutral'       // Mastermind caught, mixed performance  
@@ -85,10 +85,22 @@ export interface CaseResult {
 
 export type CaseGrade = 'S' | 'A' | 'B' | 'C' | 'D' | 'F'
 
+export interface ActiveSession {
+  caseData: any
+  startTime: number
+  notes: string
+  stats: {
+    questionsAsked: number
+    hintsUsed: number
+    minigamesCompleted: number
+  }
+}
+
 export interface GameState {
   detective: DetectiveProfile
   campaign: CampaignProgress
   currentCase: any | null  // CaseData from case-generator
+  activeSession?: ActiveSession | null // Persisted session data
   caseHistory: CaseResult[]
   settings: GameSettings
 }
@@ -111,7 +123,7 @@ export interface Achievement {
   isSecret: boolean
 }
 
-export type AchievementCategory = 
+export type AchievementCategory =
   | 'cases'         // Case completion achievements
   | 'interrogation' // Interrogation-related
   | 'minigames'     // Minigame mastery

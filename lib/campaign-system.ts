@@ -114,6 +114,7 @@ export function createInitialGameState(): GameState {
             }
         },
         currentCase: null,
+        activeSession: null,
         caseHistory: [],
         settings: {
             difficulty: 'medium',

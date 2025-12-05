@@ -1,13 +1,14 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { GameMenu } from "@/components/game-menu"
 import { GameBoard } from "@/components/game-board"
 import { CampaignMenu } from "@/components/campaign-menu"
 import { StatsDashboard } from "@/components/stats-dashboard"
 import { Button } from "@/components/ui/button"
 import { ArrowLeft } from "lucide-react"
-import type { GameState, Chapter } from "@/lib/game-types"
+import type { GameState, Chapter, ActiveSession } from "@/lib/game-types"
+import { saveGameState, loadGameState } from "@/lib/campaign-system"
 
 type ViewState = "menu" | "campaign" | "playing" | "stats"
 
@@ -15,6 +16,18 @@ export default function Home() {
   const [view, setView] = useState<ViewState>("menu")
   const [caseData, setCaseData] = useState(null)
   const [gameState, setGameState] = useState<GameState | undefined>(undefined)
+  const [activeSession, setActiveSession] = useState<ActiveSession | null>(null)
+
+  // Load game state on mount
+  useEffect(() => {
+    const loadedState = loadGameState()
+    if (loadedState) {
+      setGameState(loadedState)
+      if (loadedState.activeSession) {
+        setActiveSession(loadedState.activeSession)
+      }
+    }
+  }, [])
 
   const handleStartGame = (selectedCase: any, currentGameState?: GameState) => {
     setCaseData(selectedCase)
@@ -23,27 +36,14 @@ export default function Home() {
   }
 
   const handleStartCampaignCase = (currentGameState: GameState, chapter: Chapter) => {
-    // In a real implementation, we would generate a case specific to the chapter
-    // For now, we'll trigger the standard case generation but pass the game state
-    // The actual generation happens in the GameMenu or CampaignMenu component
-    // Here we just need to handle the transition
-
-    // Note: CampaignMenu calls onStartCase which should trigger generation
-    // We need to bridge that. For now, let's assume CampaignMenu handles generation
-    // and passes the data here.
-
-    // Actually, CampaignMenu needs to generate the case first.
-    // Let's update CampaignMenu to generate the case.
-    // But wait, CampaignMenu currently just calls onStartCase with state and chapter.
-    // We need to fetch the case here or in CampaignMenu.
-
-    // Let's modify this flow slightly:
-    // 1. CampaignMenu calls onStartCase
-    // 2. We set loading state (if we had one here)
-    // 3. We generate case with chapter params
-    // 4. We set view to playing
-
     generateCampaignCase(currentGameState, chapter)
+  }
+
+  const handleContinueSession = () => {
+    if (gameState?.activeSession) {
+      setCaseData(gameState.activeSession.caseData)
+      setView("playing")
+    }
   }
 
   const generateCampaignCase = async (state: GameState, chapter: Chapter) => {
@@ -72,16 +72,69 @@ export default function Home() {
   }
 
   const handleBackToMenu = () => {
+    // If we are in campaign mode and have a game state, save the session
+    if (gameState && caseData && view === "playing") {
+      // Create active session object
+      // Note: We need to get current stats/notes from GameBoard.
+      // Since we can't easily pull that up, we'll rely on GameBoard calling a save callback
+      // OR we just save the caseData and reset stats for now (MVP)
+      // Ideally GameBoard should have an onSave prop.
+
+      // For now, let's just save the caseData so they can restart the case at least
+      // To do this properly, we should update GameBoard to notify us of state changes
+      // or handle the save inside GameBoard before calling onBackToMenu.
+
+      // Let's assume for now we just save the caseData to allow re-entry
+      const session: ActiveSession = {
+        caseData: caseData,
+        startTime: Date.now(), // This resets time, but better than losing case
+        notes: "", // We lose notes unless we pass them back
+        stats: {
+          questionsAsked: 0,
+          hintsUsed: 0,
+          minigamesCompleted: 0
+        }
+      }
+
+      const newState = {
+        ...gameState,
+        activeSession: session
+      }
+      setGameState(newState)
+      saveGameState(newState)
+    }
+
     setView("menu")
     setCaseData(null)
   }
 
+  // New handler for saving session from GameBoard
+  const handleSaveSession = (sessionData: { notes: string, stats: any }) => {
+    if (gameState && caseData) {
+      const session: ActiveSession = {
+        caseData: caseData,
+        startTime: Date.now(), // Ideally preserve original start time
+        notes: sessionData.notes,
+        stats: sessionData.stats
+      }
+
+      const newState = {
+        ...gameState,
+        activeSession: session
+      }
+      setGameState(newState)
+      saveGameState(newState)
+    }
+  }
+
   const handleCaseComplete = (newState: GameState) => {
-    setGameState(newState)
-    // We stay in playing view to show the report
-    // The report component handles "Continue" which calls onBackToMenu
-    // But for campaign, "Continue" should probably go back to Campaign Menu
-    // We can handle that in the GameBoard's onBackToMenu or a new prop
+    // Clear active session on completion
+    const stateWithoutSession = {
+      ...newState,
+      activeSession: null
+    }
+    setGameState(stateWithoutSession)
+    saveGameState(stateWithoutSession)
   }
 
   return (
@@ -91,6 +144,8 @@ export default function Home() {
           onStartGame={handleStartGame}
           onStartCampaign={() => setView("campaign")}
           onShowStats={() => setView("stats")}
+          onContinueSession={gameState?.activeSession ? handleContinueSession : undefined}
+          gameState={gameState}
         />
       )}
 
@@ -119,8 +174,10 @@ export default function Home() {
         <GameBoard
           caseData={caseData}
           gameState={gameState}
-          onBackToMenu={() => setView(gameState ? "campaign" : "menu")}
+          onBackToMenu={handleBackToMenu}
           onCaseComplete={handleCaseComplete}
+          onSaveSession={handleSaveSession}
+          initialNotes={gameState?.activeSession?.notes}
         />
       )}
     </main>

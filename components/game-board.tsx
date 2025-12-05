@@ -19,12 +19,14 @@ interface GameBoardProps {
   gameState?: GameState
   onBackToMenu: () => void
   onCaseComplete?: (newState: GameState) => void
+  onSaveSession?: (sessionData: { notes: string, stats: any }) => void
+  initialNotes?: string
 }
 
-export function GameBoard({ caseData, gameState, onBackToMenu, onCaseComplete }: GameBoardProps) {
+export function GameBoard({ caseData, gameState, onBackToMenu, onCaseComplete, onSaveSession, initialNotes }: GameBoardProps) {
   const [activeTab, setActiveTab] = useState<"interrogation" | "evidence" | "file" | "progress" | "tools" | "minigames">("interrogation")
   const [startTime] = useState(Date.now())
-  const [caseNotes, setCaseNotes] = useState("")
+  const [caseNotes, setCaseNotes] = useState(initialNotes || "")
   const [showReport, setShowReport] = useState(false)
   const [caseResult, setCaseResult] = useState<any>(null)
 
@@ -34,6 +36,19 @@ export function GameBoard({ caseData, gameState, onBackToMenu, onCaseComplete }:
     hintsUsed: 0,
     minigamesCompleted: 0
   })
+
+  // Auto-save session when notes or stats change
+  useEffect(() => {
+    if (onSaveSession) {
+      const timer = setTimeout(() => {
+        onSaveSession({
+          notes: caseNotes,
+          stats: sessionStats
+        })
+      }, 1000) // Debounce save
+      return () => clearTimeout(timer)
+    }
+  }, [caseNotes, sessionStats, onSaveSession])
 
   const handleCaseComplete = (result: { wasCorrect: boolean; accusedSuspect: number }) => {
     const timeSpent = Date.now() - startTime

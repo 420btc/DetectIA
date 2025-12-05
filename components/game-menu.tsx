@@ -13,9 +13,11 @@ interface GameMenuProps {
   onStartGame: (caseData: any, gameState?: GameState) => void
   onStartCampaign: () => void
   onShowStats: () => void
+  onContinueSession?: () => void
+  gameState?: GameState
 }
 
-export function GameMenu({ onStartGame, onStartCampaign, onShowStats }: GameMenuProps) {
+export function GameMenu({ onStartGame, onStartCampaign, onShowStats, onContinueSession, gameState: propGameState }: GameMenuProps) {
   const [loading, setLoading] = useState(false)
   const [difficulty, setDifficulty] = useState<"easy" | "medium" | "hard">("medium")
   const [error, setError] = useState<string | null>(null)
@@ -23,9 +25,13 @@ export function GameMenu({ onStartGame, onStartCampaign, onShowStats }: GameMenu
   const [showQuickCase, setShowQuickCase] = useState(false)
 
   useEffect(() => {
-    const saved = loadGameState()
-    setGameState(saved || createInitialGameState())
-  }, [])
+    if (propGameState) {
+      setGameState(propGameState)
+    } else {
+      const saved = loadGameState()
+      setGameState(saved || createInitialGameState())
+    }
+  }, [propGameState])
 
   const handleStartCase = async () => {
     setLoading(true)
@@ -85,10 +91,10 @@ export function GameMenu({ onStartGame, onStartCampaign, onShowStats }: GameMenu
                     onClick={() => setDifficulty(level)}
                     variant={difficulty === level ? "default" : "outline"}
                     className={`capitalize ${difficulty === level
-                        ? level === "easy" ? "bg-green-600 hover:bg-green-700" :
-                          level === "medium" ? "bg-amber-600 hover:bg-amber-700" :
-                            "bg-red-600 hover:bg-red-700"
-                        : "border-slate-600 hover:bg-slate-800"
+                      ? level === "easy" ? "bg-green-600 hover:bg-green-700" :
+                        level === "medium" ? "bg-amber-600 hover:bg-amber-700" :
+                          "bg-red-600 hover:bg-red-700"
+                      : "border-slate-600 hover:bg-slate-800"
                       }`}
                   >
                     {level === "easy" ? "Fácil" : level === "medium" ? "Medio" : "Difícil"}
@@ -170,6 +176,22 @@ export function GameMenu({ onStartGame, onStartCampaign, onShowStats }: GameMenu
 
           {/* Main Menu Options */}
           <div className="space-y-3">
+            {/* Continue Session - Only if active session exists */}
+            {gameState?.activeSession && onContinueSession && (
+              <Button
+                onClick={onContinueSession}
+                className="w-full h-16 bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 text-white font-bold text-lg transition-all animate-pulse"
+              >
+                <Star className="mr-3 h-6 w-6" />
+                <div className="text-left">
+                  <div>Continuar Caso</div>
+                  <div className="text-xs font-normal opacity-75">
+                    {gameState.activeSession.caseData.title}
+                  </div>
+                </div>
+              </Button>
+            )}
+
             {/* Campaign Mode - Primary Action */}
             <Button
               onClick={onStartCampaign}
