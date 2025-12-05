@@ -40,10 +40,10 @@ export function CaseProgress({ caseData }: CaseProgressProps) {
                 className={`flex-1 h-2 rounded ${
                   caseData.difficulty === level
                     ? level === "easy"
-                      ? "bg-white text-black"
+                      ? "bg-green-600"
                       : level === "medium"
-                        ? "bg-gray-400 text-black"
-                        : "bg-gray-600 text-white"
+                        ? "bg-yellow-600"
+                        : "bg-red-600"
                     : "bg-slate-700"
                 }`}
               ></div>
@@ -73,7 +73,7 @@ export function CaseProgress({ caseData }: CaseProgressProps) {
         {showResult && (
           <div
             className={`border-t border-slate-700 pt-4 p-3 rounded ${
-              isCorrect ? "bg-gray-800 border-gray-600" : "bg-gray-700 border-gray-500"
+              isCorrect ? "bg-green-900 border-green-700" : "bg-red-900 border-red-700"
             }`}
           >
             <p className={`font-bold ${isCorrect ? "text-green-300" : "text-red-300"}`}>
@@ -82,7 +82,7 @@ export function CaseProgress({ caseData }: CaseProgressProps) {
             <p className="text-sm mt-2">
               {isCorrect
                 ? `${caseData.suspects[caseData.culprit].name} era el culpable. ¡Caso resuelto!`
-                : `El culpable era ${caseData.suspects[caseData.culprit].name}${accusedSuspect !== null ? `, no ${caseData.suspects[accusedSuspect].name}` : ''}.`}
+                : `El culpable era ${caseData.suspects[caseData.culprit].name}, no ${caseData.suspects[accusedSuspect].name}.`}
             </p>
           </div>
         )}

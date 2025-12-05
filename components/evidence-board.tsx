@@ -55,7 +55,7 @@ export function EvidenceBoard({ caseData }: EvidenceBoardProps) {
                     <div className="flex flex-wrap gap-1">
                       {linkedSuspects.length > 0 ? (
                         linkedSuspects.map((name: string, i: number) => (
-                          <Badge key={i} variant="outline" className="bg-gray-800 border-gray-600 text-gray-200">
+                          <Badge key={i} variant="outline" className="bg-red-900 border-red-700 text-red-200">
                             {name}
                           </Badge>
                         ))

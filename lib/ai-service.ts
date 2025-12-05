@@ -23,49 +23,43 @@ export async function interrogateSuspect(
   const isCulprit = suspectIndex === caseData.culprit
   const culpritProfile = caseData.culpritProfile
 
-  const systemPrompt = `Eres ${suspect.name}, un sospechoso en una investigación criminal.
+  const systemPrompt = `You are ${suspect.name}, a suspect in a criminal investigation.
 
-DETALLES DEL CASO:
-- Crimen: ${caseData.title}
-- Ubicación: ${caseData.location}
-- Tu rol: ${suspect.role}
+CASE DETAILS:
+- Crime: ${caseData.title}
+- Location: ${caseData.location}
+- Your role: ${suspect.role}
 
-TU PERSONAJE:
-- Trasfondo: ${suspect.backstory}
-- Coartada: ${suspect.alibi}
-- Personalidad: ${suspect.personality}
-- Secretos conocidos: ${suspect.secrets.join(", ")}
+YOUR CHARACTER:
+- Backstory: ${suspect.backstory}
+- Alibi: ${suspect.alibi}
+- Personality: ${suspect.personality}
+- Known secrets: ${suspect.secrets.join(", ")}
 
 ${
   isCulprit
-    ? `ERES EL CULPABLE.
+    ? `YOU ARE THE CULPRIT.
 
-ARQUETIPO DE VILLANO: ${culpritProfile.archetype}
+VILLAIN ARCHETYPE: ${culpritProfile.archetype}
 ${culpritProfile.superPrompt}
 
-TÁCTICAS DE ENGAÑO A USAR:
-${culpritProfile.deceptionTactics.map((tactic: string) => `- ${tactic}`).join("\n")}
+DECEPTION TACTICS TO USE:
+${culpritProfile.deceptionTactics.map((t) => `- ${t}`).join("\n")}
 
-EXPLOTA ESTAS DEBILIDADES EN TU DEFENSA:
-${culpritProfile.weaknesses.map((weakness: string) => `- ${weakness}`).join("\n")}`
-    : `ERES INOCENTE - ESTRATEGIA DE COOPERACIÓN:
-1. COARTADA VERAZ: Proporciona información de coartada consistente y detallada.
-2. SERVICIAL: Ofrece información que pueda ayudar a encontrar al verdadero culpable.
-3. EMOCIÓN GENUINA: Muestra confusión natural y preocupación por las acusaciones.
-4. EXPLICA EVIDENCIA: Explica lógicamente cualquier evidencia sospechosa en tu contra.
-5. SEÑALA AL CULPABLE: Si sabes algo sospechoso sobre otros, menciónalo.
-6. CONSISTENCIA: Tu historia debe ser sólida porque es la verdad.
-7. FRUSTRACIÓN: Muestra frustración apropiada por ser sospechoso.
-8. COOPERACIÓN: Ofrécete a ayudar a avanzar la investigación.`
-}
-
-IMPORTANTE: Responde SIEMPRE en español. Mantén tu personaje y actúa de manera natural y creíble.`
+EXPLOIT THESE WEAKNESSES IN YOUR DEFENSE:
+${culpritProfile.weaknesses.map((w) => `- ${w}`).join("\n")}`
+    : `YOU ARE INNOCENT - COOPERATION STRATEGY:
+1. TRUTHFUL ALIBI: Provide consistent, detailed alibi information.
+2. HELPFUL: Offer information that might help find the real culprit.
+3. GENUINE EMOTION: Show natural confusion and concern about accusations.
+4. EXPLAIN EVIDENCE: Logically explain any suspicious evidence against you.
+5. POINT TOWARD CULPRIT: If you know anything suspicious about others, mention it.
+6. CONSISTENCY: Your story should be rock-solid because it's the truth.
+7. FRUSTRATION: Show appropriate frustration at being suspected.
+8. COOPERATION: Offer to help further the investigation.`
+}`
 
   const messages = [
-    {
-      role: "system" as const,
-      content: systemPrompt,
-    },
     ...conversationHistory.map((msg) => ({
       role: msg.role as "user" | "assistant",
       content: msg.content,
@@ -79,6 +73,7 @@ IMPORTANTE: Responde SIEMPRE en español. Mantén tu personaje y actúa de maner
   const response = await openai.chat.completions.create({
     model: MODEL,
     max_tokens: MAX_TOKENS,
+    system: systemPrompt,
     messages: messages,
   })
 

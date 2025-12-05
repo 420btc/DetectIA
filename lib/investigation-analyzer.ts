@@ -21,32 +21,30 @@ export async function analyzeInterrogation(
 ): Promise<AnalysisResult> {
   const openai = getOpenAIClient()
 
-  const prompt = `Analiza esta respuesta de interrogatorio en busca de engaño e inconsistencias.
+  const prompt = `Analyze this interrogation response for deception and inconsistencies.
 
-SOSPECHOSO: ${suspect.name}
-ROL: ${suspect.role}
-COARTADA: ${suspect.alibi}
+SUSPECT: ${suspect.name}
+ROLE: ${suspect.role}
+ALIBI: ${suspect.alibi}
 
-PREGUNTA HECHA: "${question}"
-RESPUESTA: "${response}"
+QUESTION ASKED: "${question}"
+RESPONSE: "${response}"
 
-DECLARACIONES PREVIAS:
+PREVIOUS STATEMENTS:
 ${conversationHistory.map((msg) => `${msg.role === "user" ? "Detective" : suspect.name}: ${msg.content}`).join("\n")}
 
-Analiza para:
-1. Inconsistencias con declaraciones previas
-2. Señales de engaño (vacilación, sobre-explicación, deflexión)
-3. Contradicciones lógicas
-4. Incongruencia emocional
+Analyze for:
+1. Inconsistencies with previous statements
+2. Signs of deception (hesitation, over-explanation, deflection)
+3. Logical contradictions
+4. Emotional incongruence
 
-IMPORTANTE: Responde SIEMPRE en español.
-
-Devuelve JSON:
+Return JSON:
 {
-  "inconsistencies": ["inconsistencia 1", "inconsistencia 2"],
+  "inconsistencies": ["inconsistency 1", "inconsistency 2"],
   "suspicionScore": 0.0-1.0,
-  "deceptionIndicators": ["indicador 1", "indicador 2"],
-  "recommendations": ["pregunta de seguimiento 1", "pregunta de seguimiento 2"]
+  "deceptionIndicators": ["indicator 1", "indicator 2"],
+  "recommendations": ["follow-up question 1", "follow-up question 2"]
 }`
 
   const response_obj = await openai.chat.completions.create({
@@ -70,23 +68,21 @@ Devuelve JSON:
 export async function generateInvestigationHints(caseData: any, currentProgress: any): Promise<string[]> {
   const openai = getOpenAIClient()
 
-  const prompt = `Genera pistas de investigación para un juego de detective.
+  const prompt = `Generate investigation hints for a detective game.
 
-CASO: ${caseData.title}
-SOSPECHOSOS: ${caseData.suspects.map((s: any) => s.name).join(", ")}
-EVIDENCIA: ${caseData.evidence.map((e: any) => e.name).join(", ")}
+CASE: ${caseData.title}
+SUSPECTS: ${caseData.suspects.map((s: any) => s.name).join(", ")}
+EVIDENCE: ${caseData.evidence.map((e: any) => e.name).join(", ")}
 
-Progreso actual: ${JSON.stringify(currentProgress)}
+Current progress: ${JSON.stringify(currentProgress)}
 
-Genera 3-4 pistas estratégicas que:
-1. Apunten hacia evidencia importante
-2. Sugieran ángulos de interrogatorio efectivos
-3. Destaquen patrones sospechosos
-4. No revelen directamente al culpable
+Generate 3-4 strategic hints that:
+1. Point toward important evidence
+2. Suggest effective interrogation angles
+3. Highlight suspicious patterns
+4. Don't directly reveal the culprit
 
-IMPORTANTE: Responde SIEMPRE en español.
-
-Devuelve como array JSON de strings.`
+Return as JSON array of strings.`
 
   const response = await openai.chat.completions.create({
     model: MODEL,
@@ -102,16 +98,16 @@ Devuelve como array JSON de strings.`
 export async function generateCaseMap(caseData: any): Promise<string> {
   const openai = getOpenAIClient()
 
-  const prompt = `Crea un mapa ASCII detallado de la escena del crimen para: ${caseData.title}
-Ubicación: ${caseData.location}
+  const prompt = `Create a detailed ASCII map of the crime scene for: ${caseData.title}
+Location: ${caseData.location}
 
-Incluye:
-- Ubicaciones clave
-- Ubicaciones de evidencia
-- Posiciones de sospechosos
-- Puntos de entrada/salida
+Include:
+- Key locations
+- Evidence locations
+- Suspect positions
+- Entry/exit points
 
-IMPORTANTE: Responde SIEMPRE en español. Hazlo realista y detallado. Devuelve solo el mapa ASCII.`
+Make it realistic and detailed. Return only the ASCII map.`
 
   const response = await openai.chat.completions.create({
     model: MODEL,

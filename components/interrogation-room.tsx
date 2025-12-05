@@ -116,7 +116,7 @@ export function InterrogationRoom({ caseData }: InterrogationRoomProps) {
               >
                 {s.name}
                 {stats && stats.inconsistencies > 0 && (
-                  <span className="ml-2 text-xs bg-gray-600 px-2 py-1 rounded">
+                  <span className="ml-2 text-xs bg-red-600 px-2 py-1 rounded">
                     {stats.inconsistencies} inconsistencias
                   </span>
                 )}
@@ -168,10 +168,10 @@ export function InterrogationRoom({ caseData }: InterrogationRoomProps) {
                   <div
                     className={`h-2 rounded transition-all ${
                       (suspectStats[selectedSuspect]?.suspicionLevel || 0) > 0.7
-                        ? "bg-gray-600"
+                        ? "bg-red-600"
                         : (suspectStats[selectedSuspect]?.suspicionLevel || 0) > 0.4
-                          ? "bg-gray-400"
-                          : "bg-white text-black"
+                          ? "bg-yellow-600"
+                          : "bg-green-600"
                     }`}
                     style={{
                       width: `${((suspectStats[selectedSuspect]?.suspicionLevel || 0) * 100).toFixed(0)}%`,

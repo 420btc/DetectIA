@@ -52,23 +52,21 @@ function getOpenAIClient(): OpenAI {
 // Step 1: Generate basic case framework
 async function generateCaseFramework(openai: OpenAI, difficulty: "easy" | "medium" | "hard"): Promise<any> {
   const difficultyGuide = {
-    easy: "Crimen simple y directo con motivos obvios y evidencia clara",
-    medium: "Complejidad moderada con algo de desorientación y pistas sutiles",
-    hard: "Crimen complejo con múltiples capas, engaño sofisticado y pistas interconectadas",
+    easy: "Simple, straightforward crime with obvious motives and clear evidence",
+    medium: "Moderate complexity with some misdirection and subtle clues",
+    hard: "Complex crime with multiple layers, sophisticated deception, and interconnected clues",
   }
 
-  const prompt = `Crea un marco de caso policial para un juego de detective. Dificultad: ${difficultyGuide[difficulty]}
+  const prompt = `Create a police case framework for a detective game. Difficulty: ${difficultyGuide[difficulty]}
 
-Devuelve JSON:
+Return JSON:
 {
-  "crimeType": "tipo de crimen",
-  "title": "título atractivo del caso",
-  "location": "dónde ocurrió",
-  "timeline": "cuándo ocurrió",
-  "basicDescription": "descripción general de 2-3 oraciones"
-}
-
-IMPORTANTE: Responde SOLO en español. Todos los nombres, lugares y descripciones deben estar en español.`
+  "crimeType": "type of crime",
+  "title": "catchy case title",
+  "location": "where it happened",
+  "timeline": "when it happened",
+  "basicDescription": "2-3 sentence overview"
+}`
 
   const response = await openai.chat.completions.create({
     model: MODEL,
@@ -89,27 +87,26 @@ async function generateSuspects(
 ): Promise<Suspect[]> {
   const suspectCount = difficulty === "easy" ? 2 : difficulty === "medium" ? 3 : 4
 
-  const prompt = `Genera ${suspectCount} sospechosos para este crimen: ${caseFramework.title}
-Ubicación: ${caseFramework.location}
-Tipo de crimen: ${caseFramework.crimeType}
+  const prompt = `Generate ${suspectCount} suspects for this crime: ${caseFramework.title}
+Location: ${caseFramework.location}
+Crime type: ${caseFramework.crimeType}
 
-Uno de ellos es el culpable. Crea personajes diversos con diferentes motivos.
+One of them is the culprit. Create diverse characters with different motives.
 
-Devuelve un array JSON:
+Return JSON array:
 [
   {
-    "name": "nombre completo",
-    "role": "ocupación/relación con la víctima",
-    "backstory": "trasfondo personal (2-3 oraciones)",
-    "motive": "por qué podrían cometer este crimen",
-    "alibi": "su coartada declarada",
-    "personality": "cómo actúan bajo interrogatorio (nervioso, confiado, defensivo, etc)",
-    "secrets": ["secreto 1", "secreto 2"]
+    "name": "full name",
+    "role": "occupation/relationship to victim",
+    "backstory": "personal background (2-3 sentences)",
+    "motive": "why they might commit this crime",
+    "alibi": "their claimed alibi",
+    "personality": "how they act under interrogation (nervous, confident, defensive, etc)",
+    "secrets": ["secret 1", "secret 2"]
   }
 ]
 
-Haz que los sospechosos sean realistas y complejos. Incluye al menos una pista falsa.
-IMPORTANTE: Responde SOLO en español. Todos los nombres deben ser nombres españoles o latinoamericanos.`
+Make the suspects realistic and complex. Include at least one red herring.`
 
   const response = await openai.chat.completions.create({
     model: MODEL,
@@ -133,27 +130,26 @@ async function generateEvidence(
 
   const suspectNames = suspects.map((s) => s.name).join(", ")
 
-  const prompt = `Genera ${evidenceCount} piezas de evidencia para este crimen: ${caseFramework.title}
-Sospechosos: ${suspectNames}
+  const prompt = `Generate ${evidenceCount} pieces of evidence for this crime: ${caseFramework.title}
+Suspects: ${suspectNames}
 
-Crea evidencia que:
-1. Apunte al culpable (sospechoso 0)
-2. Cree pistas falsas para otros sospechosos
-3. Incluya evidencia física, testimonios y rastros digitales
-4. Tenga diferentes niveles de confiabilidad
+Create evidence that:
+1. Points to the culprit (suspect 0)
+2. Creates false leads for other suspects
+3. Includes physical evidence, testimonies, and digital traces
+4. Has varying levels of reliability
 
-Devuelve un array JSON:
+Return JSON array:
 [
   {
-    "name": "nombre de la evidencia",
-    "description": "qué es y dónde se encontró",
-    "linkedTo": [índices de sospechosos que implica],
-    "falseLeads": ["interpretación engañosa 1", "interpretación engañosa 2"]
+    "name": "evidence name",
+    "description": "what it is and where found",
+    "linkedTo": [suspect indices it implicates],
+    "falseLeads": ["misleading interpretation 1", "misleading interpretation 2"]
   }
 ]
 
-Haz que la evidencia sea realista e interconectada.
-IMPORTANTE: Responde SOLO en español. Todas las descripciones deben estar en español.`
+Make evidence realistic and interconnected.`
 
   const response = await openai.chat.completions.create({
     model: MODEL,
@@ -168,18 +164,17 @@ IMPORTANTE: Responde SOLO en español. Todas las descripciones deben estar en es
 
 // Step 4: Generate detailed timeline
 async function generateTimeline(openai: OpenAI, caseFramework: any, suspects: Suspect[]): Promise<string> {
-  const prompt = `Crea una cronología detallada para este crimen: ${caseFramework.title}
-Ubicación: ${caseFramework.location}
-Sospechosos: ${suspects.map((s) => s.name).join(", ")}
+  const prompt = `Create a detailed timeline for this crime: ${caseFramework.title}
+Location: ${caseFramework.location}
+Suspects: ${suspects.map((s) => s.name).join(", ")}
 
-Genera una cronología realista con:
-- Cuándo ocurrió el crimen
-- Eventos clave antes y después
-- Cuándo fueron vistos los sospechosos
-- Cuándo se descubrió la evidencia
+Generate a realistic timeline with:
+- When the crime occurred
+- Key events before and after
+- When suspects were seen
+- When evidence was discovered
 
-Formatea como una cronología legible (no JSON).
-IMPORTANTE: Responde SOLO en español. Toda la cronología debe estar en español.`
+Format as a readable timeline (not JSON).`
 
   const response = await openai.chat.completions.create({
     model: MODEL,
@@ -191,79 +186,9 @@ IMPORTANTE: Responde SOLO en español. Toda la cronología debe estar en españo
 }
 
 export async function POST(request: NextRequest) {
-  const { difficulty, stream } = await request.json()
-
-  if (stream) {
-    // Return streaming response
-    const encoder = new TextEncoder()
-    const stream = new ReadableStream({
-      async start(controller) {
-        try {
-          const sendMessage = (message: string) => {
-            controller.enqueue(encoder.encode(`data: ${JSON.stringify({ message })}\n\n`))
-          }
-
-          sendMessage("Iniciando generación del caso...")
-          
-          const openai = getOpenAIClient()
-
-          // Step 1: Generate framework
-          sendMessage("Paso 1: Generando estructura del caso...")
-          const framework = await generateCaseFramework(openai, difficulty)
-
-          // Step 2: Generate suspects
-          sendMessage("Paso 2: Creando sospechosos...")
-          const suspects = await generateSuspects(openai, framework, difficulty)
-
-          // Step 3: Generate evidence
-          sendMessage("Paso 3: Generando evidencias...")
-          const evidence = await generateEvidence(openai, framework, suspects, difficulty)
-
-          // Step 4: Generate timeline
-          sendMessage("Paso 4: Creando cronología...")
-          const timeline = await generateTimeline(openai, framework, suspects)
-
-          const culpritIndex = Math.floor(Math.random() * suspects.length)
-          const culpritProfile = getRandomVillainProfile()
-
-          const caseData: CaseData = {
-            caseId: `CASE-${Date.now()}`,
-            title: framework.title,
-            description: framework.basicDescription,
-            suspects,
-            culprit: culpritIndex,
-            culpritProfile,
-            evidence,
-            timeline,
-            location: framework.location,
-            difficulty,
-          }
-
-          sendMessage("¡Caso generado exitosamente!")
-          
-          // Send final data
-          controller.enqueue(encoder.encode(`data: ${JSON.stringify({ caseData, complete: true })}\n\n`))
-          controller.close()
-        } catch (error) {
-          console.error("Error generating case:", error)
-          const errorMessage = error instanceof Error ? error.message : "Error al generar el caso"
-          controller.enqueue(encoder.encode(`data: ${JSON.stringify({ error: errorMessage })}\n\n`))
-          controller.close()
-        }
-      }
-    })
-
-    return new Response(stream, {
-      headers: {
-        'Content-Type': 'text/event-stream',
-        'Cache-Control': 'no-cache',
-        'Connection': 'keep-alive',
-      },
-    })
-  }
-
-  // Fallback to regular JSON response
   try {
+    const { difficulty } = await request.json()
+
     console.log("[v0] Starting case generation with difficulty:", difficulty)
 
     const openai = getOpenAIClient()

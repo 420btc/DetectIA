@@ -100,9 +100,9 @@ export function MultipleChoiceGame({ caseData }: MultipleChoiceGameProps) {
             className={`w-full justify-start text-left h-auto py-3 px-4 ${
               answered
                 ? idx === question.correctAnswer
-                  ? "bg-gray-800 border-gray-600 text-gray-200"
+                  ? "bg-green-900 border-green-700 text-green-200"
                   : idx === selectedAnswer
-                    ? "bg-gray-700 border-gray-500 text-gray-300"
+                    ? "bg-red-900 border-red-700 text-red-200"
                     : "border-slate-700 text-slate-300"
                 : "border-slate-700 hover:bg-slate-800"
             }`}

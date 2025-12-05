@@ -13,61 +13,26 @@ export function GameMenu({ onStartGame }: GameMenuProps) {
   const [loading, setLoading] = useState(false)
   const [difficulty, setDifficulty] = useState<"easy" | "medium" | "hard">("medium")
   const [error, setError] = useState<string | null>(null)
-  const [progressMessage, setProgressMessage] = useState<string>("")
 
   const handleStartCase = async () => {
     setLoading(true)
     setError(null)
-    setProgressMessage("")
-    
     try {
       const response = await fetch("/api/generate-case", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ difficulty, stream: true }),
+        body: JSON.stringify({ difficulty }),
       })
-
       if (!response.ok) {
         throw new Error("Error generando caso")
       }
-
-      const reader = response.body?.getReader()
-      const decoder = new TextDecoder()
-
-      if (reader) {
-        while (true) {
-          const { done, value } = await reader.read()
-          if (done) break
-
-          const chunk = decoder.decode(value)
-          const lines = chunk.split('\n')
-          
-          for (const line of lines) {
-            if (line.startsWith('data: ')) {
-              try {
-                const data = JSON.parse(line.slice(6))
-                
-                if (data.message) {
-                  setProgressMessage(data.message)
-                } else if (data.caseData && data.complete) {
-                  onStartGame(data.caseData)
-                  return
-                } else if (data.error) {
-                  throw new Error(data.error)
-                }
-              } catch (parseError) {
-                // Ignore parsing errors for incomplete chunks
-              }
-            }
-          }
-        }
-      }
+      const caseData = await response.json()
+      onStartGame(caseData)
     } catch (error) {
       console.error("Error generating case:", error)
       setError("No se pudo generar el caso. Verifica tu API key de OpenAI.")
     } finally {
       setLoading(false)
-      setProgressMessage("")
     }
   }
 
@@ -92,7 +57,6 @@ export function GameMenu({ onStartGame }: GameMenuProps) {
                   className={`capitalize ${
                     difficulty === level ? "bg-amber-600 hover:bg-amber-700" : "border-slate-600 hover:bg-slate-800"
                   }`}
-                  disabled={loading}
                 >
                   {level === "easy" ? "Fácil" : level === "medium" ? "Medio" : "Difícil"}
                 </Button>
@@ -100,13 +64,7 @@ export function GameMenu({ onStartGame }: GameMenuProps) {
             </div>
           </div>
 
-          {error && <div className="p-3 bg-gray-800 border border-gray-600 rounded text-sm text-gray-200">{error}</div>}
-
-          {loading && progressMessage && (
-            <div className="p-3 bg-gray-700 border border-gray-500 rounded text-sm text-gray-200">
-              {progressMessage}
-            </div>
-          )}
+          {error && <div className="p-3 bg-red-900 border border-red-700 rounded text-sm text-red-200">{error}</div>}
 
           <Button
             onClick={handleStartCase}
@@ -116,7 +74,7 @@ export function GameMenu({ onStartGame }: GameMenuProps) {
             {loading ? (
               <>
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                {progressMessage || "Iniciando..."}
+                Generando caso...
               </>
             ) : (
               "Iniciar Investigación"
